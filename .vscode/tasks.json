@@ -1,0 +1,35 @@
+/*
+Prerequsites:
+- Install mingw-64  from       : https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download
+- Add mingw-63 bin folder to the PATH
+*/
+
+{
+    "tasks": [
+      {
+        "type": "cppbuild",
+        "label": "C/C++: build active file",
+        "command": "g++.exe", 
+        "args": ["-static-libgcc", "-static-libstdc++", "-fdiagnostics-color", "-std=c++17", "-g", "${file}", "-o", "${fileDirname}\\${fileBasenameNoExtension}.exe"],
+        "options": {
+          "cwd": "${fileDirname}"
+        },
+        "problemMatcher": ["$gcc"],
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }      
+      },
+      {
+        "type" : "shell",
+        "label" : "C/C++: run active file executable",
+        "command": "${fileBasenameNoExtension}.exe",
+        "options": {
+          "cwd": "${fileDirname}"
+        },
+        "dependsOn": ["C/C++: build active file"]
+      }
+
+    ],
+    "version": "2.0.0"
+}
