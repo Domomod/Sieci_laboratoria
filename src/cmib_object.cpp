@@ -1,4 +1,4 @@
-#include "CMIBobject.hpp"
+#include "cmib_object.hpp"
 
 std::string CMIBobject::get_IDENTI()
 {

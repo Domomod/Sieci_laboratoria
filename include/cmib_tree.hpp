@@ -1,6 +1,6 @@
 #pragma once
 #include "tree.hh"
-#include "CTrieNode.hpp"
+#include "ctree_node.hpp"
 #include <iostream>
 #include <vector>
 #include <map>

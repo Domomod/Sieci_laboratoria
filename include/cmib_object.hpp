@@ -1,5 +1,5 @@
 #pragma once
-#include "CMIBenum.hpp"
+#include "cmib_enum.hpp"
 #include "string.h"
 #include <iostream>
 

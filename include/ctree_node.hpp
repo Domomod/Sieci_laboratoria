@@ -1,5 +1,5 @@
 #pragma once
-#include "CMIBobject.hpp"
+#include "cmib_object.hpp"
 
 class CTrieNode
 {

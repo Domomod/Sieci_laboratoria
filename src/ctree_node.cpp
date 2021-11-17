@@ -1,4 +1,4 @@
-#include "../include/CTrieNode.hpp"
+#include "ctree_node.hpp"
 
 CTrieNode::CTrieNode() = default;
 

@@ -1,5 +1,4 @@
-#include "../include/CMIBTree.hpp"
-#include "CTrieNode.hpp"
+#include "cmib_tree.hpp"
 
 int CMIBTree ::insert_add(const std::vector<int> &oid, const CTrieNode &node)
 {
