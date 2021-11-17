@@ -1,7 +1,0 @@
-[
-{
-  "directory": "C:/Users/piron/Documents/PROJEKT_GIT_SIECI/Sieci_laboratoria/build",
-  "command": "C:\\msys64\\mingw64\\bin\\x86_64-w64-mingw32-g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -o CMakeFiles\\main.dir\\src\\main.cpp.obj -c C:\\Users\\piron\\Documents\\PROJEKT_GIT_SIECI\\Sieci_laboratoria\\src\\main.cpp",
-  "file": "C:/Users/piron/Documents/PROJEKT_GIT_SIECI/Sieci_laboratoria/src/main.cpp"
-}
-]
