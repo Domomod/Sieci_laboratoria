@@ -1,0 +1,3 @@
+C:/Users/piron/Documents/PROJEKT_GIT_SIECI/Sieci_laboratoria/build/CMakeFiles/main.dir
+C:/Users/piron/Documents/PROJEKT_GIT_SIECI/Sieci_laboratoria/build/CMakeFiles/edit_cache.dir
+C:/Users/piron/Documents/PROJEKT_GIT_SIECI/Sieci_laboratoria/build/CMakeFiles/rebuild_cache.dir
