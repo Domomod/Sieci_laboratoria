@@ -62,20 +62,42 @@ namespace parser
 
     extern const char split_declarations_regexp[] = R"(\s*\w(?:.*?(OBJECT-TYPE).*\n(?:.*\n)*?.*::=.*?\n)|(?:(.*)?:=(.*\n)+?\n))";
 
-    const auto parse_file = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
-    const auto parse_object = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
+    //const auto parse_file = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
+    //const auto parse_object = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
 
     struct object_type { int x; };
+    object_type mock(const std::smatch& match)
+    {
+        std::cout << "IDENTI:\t" << match[1] << "\n";
+        std::cout << "SYNTAX:\t" << match[2] << "\n";
+        std::cout << "ACCESS:\t" << match[3] << "\n";
+        std::cout << "STATUS:\t" << match[4] << "\n";
+        std::cout << "DESCRI:\t" << match[5] << "\n";
+        // 7 is intentional
+        std::cout << "INDEX :\t" << match[7] << "\n";
+        std::cout << "OID   :\t" << match[8] << "\n";
+        std::cout << "==============================================\n\n\n";
+        return object_type{0};
+    };
+
     struct declaration_type { int y; };
 
-    template<const char* regext_str, class Type>
-    Type parse(const std::string& str)
+    template<regexp_type x, class T> struct regex_job { const char* str; T (*const foo) (const std::smatch& match); };
+    const regex_job<regexp_type::object_decl, object_type> parse_object {R"((\w*)\s*OBJECT-TYPE\s*?SYNTAX([^]*)?ACCESS([^]*)?STATUS([^]*?)DESCRIPTION([^]*?)(INDEX([^]*?))?::=\s*?\{(.*?)\})", mock};
+
+    template<class regex_job>
+    decltype(regex_job::foo(std::smatch())) parse(regex_job job , const std::string& str)
     {
-        static const std::regex regexp(regext_str);
+        static const std::regex regexp(job.str);
         std::smatch match;
         std::regex_search(str, match, regexp);
-        
-        return Type{0};
+
+        //std::cout << "==============================================\n";
+        //std::cout << match.str() << "\n";
+        //std::cout << "==============================================\n";
+
+
+        return job.foo(match);
     }
 
     int parse_all(const std::string& str)
@@ -87,7 +109,7 @@ namespace parser
                           if("OBJECT-TYPE" == match[1])
                           {
                             std::string str = match.str();
-                            object_type x = parse<split_declarations_regexp, object_type>(str);
+                            object_type x = parse(parse_object, str);
                           }
                       });
 
