@@ -12,7 +12,7 @@ project( Sieci_laboratoria )
 include_directories( ./include ./src  )
 
 # target
-add_executable( main ./src/main.cpp )
+add_executable( main ./src/main.cpp ./src/CMIBobject.cpp ./src/CMIBTree.cpp ./src/CTrieNode.cpp)
 
 # external libs
 #add_subdirectory( ./libs/Logger )
