@@ -1,10 +1,12 @@
-#include<iostream> 
+#include<iostream>
+#include "../include/tree.hh"
 using namespace std;
 
 int main()
 {
+    tree<string> tr;
 
-    cout<<"commit_test_ignore2";
+    cout<<"test_tree_branch";
      
     return 0;
 }
