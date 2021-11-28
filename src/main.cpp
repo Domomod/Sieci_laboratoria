@@ -1,40 +1,34 @@
 #include "../include/tree.hh"
 #include <iostream>
 
-/*
-struct INTEGER{
-    int value;
-    int size;
-};
-struct OCTET_STRING{
-    int 
-};
-struct OBJECT_IDENTIFIER{
+enum struct SYNTAX {INTEGER, OCTET_STRING,OBJECT_IDENTIFIER,NULL_T,IMPORT_S}; // default type is int
 
-};
-struct NULL_T{
-
-}; */
+enum struct ACCESS {read_only, read_write, not_accessible }; // default type is int
+enum struct STATUS {mandatory, deprecated }; // default type is int
 
 class CDataType {
 public:
-std::string IDENTI;
-std::string SYNTAX;
-std::string ACCESS;
-std::string STATUS;
+std::string IDENTI; //string
+
+SYNTAX syntax_scoped; // struct 
+
+ACCESS access_scoped;
+STATUS status_scoped;
+
 std::string DESCRI;
 
 std::string get_IDENTI(){
 return (IDENTI);
 }
-std::string get_SYNTAX(){
-return (SYNTAX);
+
+SYNTAX get_SYNTAX(){
+return (syntax_scoped);
 }
-std::string get_ACCESS(){
-return (ACCESS);
+ACCESS get_ACCESS(){
+return (access_scoped);
 }
-std::string get_STATUS(){
-return (STATUS);
+STATUS get_STATUS(){
+return (status_scoped);
 }
 std::string get_DESCRI(){
 return (DESCRI);
@@ -43,15 +37,17 @@ return (DESCRI);
 void set_IDENTI(std::string s){
 IDENTI = s;
 }
-void set_SYNTAX(std::string s){
-SYNTAX = s;
+void set_SYNTAX(SYNTAX syn_s){
+syntax_scoped = syn_s;
 }
-void set_ACCESS(std::string s){
-ACCESS = s;
+
+void set_ACCESS(ACCESS ac_s){
+access_scoped = ac_s;
 }
-void set_STATUS(std::string s){
-STATUS = s;
+void set_STATUS(STATUS s_s){
+status_scoped = s_s;
 }
+
 void set_DESCRI(std::string s){
 DESCRI = s;
 }
@@ -88,10 +84,10 @@ int main(int, char **)
        tree<CTrieNode>::iterator node_root,node_child;
        node_root=tree_root_it.begin();
        CTrieNode node_child_TEST;
-       node_child_TEST.ACCESS = "string_test";
+       //node_child_TEST.ACCESS = "string_test";
        node_child=tree_root_it.insert(node_root,node_child_TEST);
        tree<CTrieNode>::iterator its = tree_root_it.begin();
        CTrieNode test = *its;
-       std::cout << test.get_ACCESS();
+       //std::cout << test.get_ACCESS();
        //node.ACCESS = "ll";
    }
