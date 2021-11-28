@@ -65,25 +65,40 @@ namespace parser
     //const auto parse_file = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
     //const auto parse_object = std::make_tuple(regexp_type::mib_file, split_declarations_regexp);
 
+    template<regexp_type x, class T> struct regex_job { const char* str; T (*const foo) (const std::smatch& match); };
+
+
     struct object_type { int x; };
-    object_type mock(const std::smatch& match)
+    object_type parse_obj(const std::smatch& match)
     {
-        std::cout << "IDENTI:\t" << match[1] << "\n";
-        std::cout << "SYNTAX:\t" << match[2] << "\n";
-        std::cout << "ACCESS:\t" << match[3] << "\n";
-        std::cout << "STATUS:\t" << match[4] << "\n";
-        std::cout << "DESCRI:\t" << match[5] << "\n";
-        // 7 is intentional
-        std::cout << "INDEX :\t" << match[7] << "\n";
-        std::cout << "OID   :\t" << match[8] << "\n";
-        std::cout << "==============================================\n\n\n";
+        // std::cout << "IDENTI:\t" << match[1] << "\n";
+        // std::cout << "SYNTAX:\t" << match[2] << "\n";
+        // std::cout << "ACCESS:\t" << match[3] << "\n";
+        // std::cout << "STATUS:\t" << match[4] << "\n";
+        // std::cout << "DESCRI:\t" << match[5] << "\n";
+        // // 7 is intentional
+        // std::cout << "INDEX :\t" << match[7] << "\n";
+        // std::cout << "OID   :\t" << match[8] << "\n";
+        // std::cout << "==============================================\n\n\n";
         return object_type{0};
     };
 
-    struct declaration_type { int y; };
+    const regex_job<regexp_type::object_decl, object_type> parse_object {R"((\w*)\s*OBJECT-TYPE\s*?SYNTAX([^]*)?ACCESS([^]*)?STATUS([^]*?)DESCRIPTION([^]*?)(INDEX([^]*?))?::=\s*?\{(.*?)\})", parse_obj};
 
-    template<regexp_type x, class T> struct regex_job { const char* str; T (*const foo) (const std::smatch& match); };
-    const regex_job<regexp_type::object_decl, object_type> parse_object {R"((\w*)\s*OBJECT-TYPE\s*?SYNTAX([^]*)?ACCESS([^]*)?STATUS([^]*?)DESCRIPTION([^]*?)(INDEX([^]*?))?::=\s*?\{(.*?)\})", mock};
+
+    struct type_declaration { int x; };
+    type_declaration parse_type(const std::smatch& match)
+    {
+        std::cout << "LABEL      :\t" << match[1] << "\n";
+        std::cout << "APPLICATION:\t" << match[2] << "\n";
+        std::cout << "ACCESS     :\t" << match[3] << "\n";
+        std::cout << "TYPE       :\t" << match[4] << "\n";
+        std::cout << "RESTRICTION:\t" << match[5] << "\n\n\n";
+
+        return type_declaration{0};
+    };
+    const regex_job<regexp_type::type_decl, type_declaration> parse_type_job {R"((\w*)\s*::=\s*(?:\[APPLICATION (\d*)\])?\s*(?:--.*\n)?\s*(IMPLICIT|EXPLICIT)?\s*((?:[\w\s]*)(?:\{[^]*\})?)(?:\((.*)\))?)", parse_type};
+
 
     template<class regex_job>
     decltype(regex_job::foo(std::smatch())) parse(regex_job job , const std::string& str)
@@ -95,7 +110,6 @@ namespace parser
         //std::cout << "==============================================\n";
         //std::cout << match.str() << "\n";
         //std::cout << "==============================================\n";
-
 
         return job.foo(match);
     }
@@ -110,6 +124,11 @@ namespace parser
                           {
                             std::string str = match.str();
                             object_type x = parse(parse_object, str);
+                          }
+                          else
+                          {
+                            std::string str = match.str();
+                            type_declaration x = parse(parse_type_job, str);
                           }
                       });
 
