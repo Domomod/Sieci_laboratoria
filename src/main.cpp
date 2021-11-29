@@ -1,5 +1,7 @@
 #include "../include/tree.hh"
 #include <iostream>
+#include <vector>
+#include <map>
 
 
 enum struct SYNTAX { INTEGER,
@@ -152,15 +154,30 @@ class CMIBTree
 private:
     tree<CTrieNode> tree_mib;
     const tree<CTrieNode>::iterator head;
-    
+    std::map<std::string, std::vector<int>> oid_map;
+
 public:
-    int insert_add(const std::vector<int> &oid, CTrieNode &node)
+    int insert_add(const std::vector<int> &oid, const CTrieNode &node)
     {
         auto node_it = head;
-        for (int i = 0; i< oid.size() - 1 ; i++ )
+        int depth = 0;
+
+        std::cout<< node_it->get_name() << "\n";
+        for(auto i : oid)
         {
             node_it++;
-        }                               
+            while(i > 1)
+            {
+                node_it = node_it.next_skip_children();
+                i--;
+            }
+            
+            std::cout<< node_it->get_name() << "\n";
+        }
+
+        tree_mib.append_child(node_it, node);
+        std::cout << "---------------------\n";
+
         return 0;
     }
 
@@ -172,6 +189,13 @@ public:
 
 int main(int, char **)
 {
+    CMIBTree cmibTree;
+    cmibTree.insert_add({}, CTrieNode("system", 1));
+    cmibTree.insert_add({}, CTrieNode("interfaces", 2));
+    cmibTree.insert_add({1}, CTrieNode("dupa", 2));
+    cmibTree.insert_add({1,1}, CTrieNode("DUUPA", 2));
+    cmibTree.insert_add({}, CTrieNode("kupa", 3));
+
 
     //BEGIN TREE
 
