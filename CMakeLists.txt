@@ -27,9 +27,10 @@ FetchContent_MakeAvailable(googletest)
 # Add test cpp file
 add_executable( runTest 
 ./test/cmib_parser.cpp 
-./src/cmib_parser.cpp ./src/cmib_parser.hpp 
-./src/cmib_sequencer.cpp ./src/cmib_sequencer.hpp
-./src/types.hpp )
+./src/cmib_parser.cpp    ./include/cmib_parser.hpp 
+./src/cmib_sequencer.cpp ./include/cmib_sequencer.hpp
+                         ./include/cmib_regex.hpp
+                         ./include/types.hpp )
 # Link test executable against gtest & gtest_main
 target_link_libraries(runTest gtest gtest_main)
 add_test( runTest runTest )
