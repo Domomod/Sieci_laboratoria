@@ -3,6 +3,7 @@ cmake_minimum_required( VERSION 3.14 )
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_BUILD_TYPE Debug)
 
 # project name
 project( Sieci_laboratoria )
@@ -30,10 +31,13 @@ include_directories( ./include ./src ./test )
 # Add test cpp file
 add_executable( runTest 
 ./test/cmib_parser_test.cpp 
-./src/cmib_parser.cpp    ./include/cmib_parser.hpp 
-./src/cmib_sequencer.cpp ./include/cmib_sequencer.hpp
-                         ./include/cmib_regex.hpp
-                         ./include/types.hpp )
+./src/cmib_object.cpp 
+./src/cmib_tree.cpp 
+./src/ctree_node.cpp
+./src/cmib_parser.cpp  
+./src/cmib_sequencer.cpp)
+                        
+                        
 # Link test executable against gtest & gtest_main
 target_link_libraries(runTest gtest gtest_main)
 add_test( runTest runTest )
@@ -49,6 +53,7 @@ add_test( runTest runTest )
 # target
 add_executable( main
 ./src/main.cpp 
+./src/cmib_enum.cpp
 ./src/cmib_object.cpp 
 ./src/cmib_tree.cpp 
 ./src/ctree_node.cpp

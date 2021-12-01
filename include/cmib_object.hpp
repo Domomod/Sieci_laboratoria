@@ -1,36 +1,32 @@
 #pragma once
-#include "cmib_enum.hpp"
-#include "string.h"
 #include <iostream>
+
+#include "cmib_enum.hpp"
 
 class CMIBobject
 {
 
 private:
     std::string IDENTI;
-    SYNTAX syntax_scoped;
-    ACCESS access_scoped;
-    STATUS status_scoped;
     std::string DESCRI;
+    syntax_t _syntax;
+    access_t _access;
+    status_t _status;
 
 public:
+
+    syntax_t syntax() { return _syntax; };
+    access_t access() { return _access; };
+    status_t status() { return _status; };
+
     std::string get_IDENTI();
-
-    SYNTAX get_SYNTAX();
-
-    ACCESS get_ACCESS();
-
-    STATUS get_STATUS();
-
     std::string get_DESCRI();
 
     void set_IDENTI(std::string s);
-
-    void set_SYNTAX(SYNTAX syn_s);
-
-    void set_ACCESS(ACCESS ac_s);
-
-    void set_STATUS(STATUS s_s);
-
     void set_DESCRI(std::string s);
+
+    void syntax(const syntax_t& val) {_syntax = val; };
+    void access(const access_t& val) {_access = val; };
+    void status(const status_t& val) {_status = val; };
+
 };

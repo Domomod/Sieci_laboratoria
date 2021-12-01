@@ -1,40 +1,38 @@
 #include "gtest/gtest.h"
 #include "cmib_parser.hpp"
+#include "cmib_enum.hpp"
 
 #define GTEST_COUT std::cerr << "[   INFO   ] "
 
 
 
-struct parse_type_tc
+struct syntax_t_tc
 {
-    union
-    {
-        type_declaration expected_type_struct;
-    };
-
+    syntax_t syntax;
     std::string expression;
 };
 
-struct CmibTest : testing::Test ,testing::WithParamInterface<parse_type_tc>
+struct SyntaxTest : testing::Test ,testing::WithParamInterface<syntax_t_tc>
 {
 
 };
 
-TEST_P(CmibTest, ParseTypeDeclaration)
+TEST_P(SyntaxTest, ParseTypeDeclaration)
 {
-    GTEST_COUT << "Hello world\n";
     auto tc = GetParam();
     auto str = tc.expression;
-    GTEST_COUT << str <<"\n";
-    auto expected = tc.expected_type_struct;
-    //CmibParser::parse(CmibParser::parse_type_job, )
+    auto expected = tc.syntax;
+    GTEST_COUT << "(syntax_t)" << str << " == " << (syntax_t)str << "\n";
+
+    ASSERT_EQ(expected, (syntax_t)str);
 }
 
-INSTANTIATE_TEST_CASE_P(Default, CmibTest,
+INSTANTIATE_TEST_CASE_P(Default, SyntaxTest,
     testing::Values(
-    parse_type_tc{type_declaration{0}, "AAAAAAAA"},
-    parse_type_tc{type_declaration{0}, "DUPAAAAA"},
-    parse_type_tc{type_declaration{0}, "AAAAAAAA"}   
+    syntax_t_tc{syntax_t{_SYNTAX_e::INTEGER}, "integer"},
+    syntax_t_tc{syntax_t{_SYNTAX_e::INTEGER}, "INTEGER"},
+    syntax_t_tc{syntax_t{_SYNTAX_e::INTEGER}, "Integer"},
+    syntax_t_tc{syntax_t{_SYNTAX_e::OCTET_STRING}, "octet-string"}    
     ));
 
 int main(int argc, char* argv[])

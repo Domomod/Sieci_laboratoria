@@ -1,7 +1,7 @@
 
 namespace CmibParser
 {
-#define CATCH_WORD "(\\w*)"
+#define CATCH_WORD "([\\w\\-_]*)"
 #define CATCH_DOT "(.*?)"
 #define CATCH_ANYTHING "([^]*?)"
 #define GROUP(str) "(" str ")"
@@ -13,6 +13,9 @@ namespace CmibParser
 #define BRACKETS(str) "\\[" str "\\]"
 #define CHEVRONS(str) "\\<" str "\\>"
 #define COMMENT "(?:--.*\\n\\s*)?"
+
+    constexpr char syntax_type_regexp_str[] = 
+        "\\s*(\\w*)";
 
     constexpr char object_type_regexp_str[] =
         CATCH_WORD SKIP_WHITESPACES "OBJECT-TYPE" SKIP_WHITESPACES

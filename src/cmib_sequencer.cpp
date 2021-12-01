@@ -1,5 +1,6 @@
 #include "cmib_sequencer.hpp"
 #include "cmib_parser.hpp"
+#include "cmib_object.hpp"
 
 const char split_declarations_regexp[] = R"(\s*\w(?:.*?(OBJECT-TYPE).*\n(?:.*\n)*?.*::=.*?\n)|(?:(.*)?:=(.*\n)+?\n))";
 
@@ -12,7 +13,7 @@ int CmibFileSequencer::parse_all(const std::string& str)
                         if("OBJECT-TYPE" == match[1])
                         {
                         std::string str = match.str();
-                        object_type x = CmibParser::parse(CmibParser::parse_object, str);
+                        CMIBobject x = CmibParser::parse(CmibParser::parse_object, str);
                         }
                         else
                         {
