@@ -13,12 +13,12 @@ int CmibFileSequencer::parse_all(const std::string& str)
                         if("OBJECT-TYPE" == match[1])
                         {
                         std::string str = match.str();
-                        CMIBobject x = CmibParser::parse(CmibParser::parse_object, str);
+                        CMIBobject x = CmibParser::parse_obj(str);
                         }
                         else
                         {
                         std::string str = match.str();
-                        type_declaration x = CmibParser::parse(CmibParser::parse_type_job, str);
+                        type_declaration x = CmibParser::parse_type(str);
                         }
                     });
 
