@@ -8,6 +8,7 @@ int main(int, char **)
     CMIBTree cmibTree;
     cmibTree.insert_add({}, CTrieNode("system", 1));
     cmibTree.insert_add({}, CTrieNode("interfaces", 2));
+<<<<<<< Updated upstream
     cmibTree.insert_add({1}, CTrieNode("dupa", 2));
     cmibTree.insert_add({1, 1}, CTrieNode("DUUPA", 2));
     cmibTree.insert_add({}, CTrieNode("kupa", 3));
@@ -50,4 +51,10 @@ int main(int, char **)
     // CTrieNode test = *its;
     //std::cout << test.get_ACCESS();
     //node.ACCESS = "ll"; */
+=======
+    cmibTree.insert_add({1}, CTrieNode("HCI", 2));
+    cmibTree.insert_add({1, 1}, CTrieNode("mouse", 2));
+    cmibTree.insert_add({}, CTrieNode("adresses", 3));
+     
+>>>>>>> Stashed changes
 }

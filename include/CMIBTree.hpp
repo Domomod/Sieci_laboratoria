@@ -17,4 +17,7 @@ public:
     CMIBTree();
 
     int insert_add(const std::vector<int> &oid, const CTrieNode &node);
+    tree<CTrieNode>::iterator find_name(std::string name);
+    tree<CTrieNode>::iterator find_oid(int oid_n);
+
 };

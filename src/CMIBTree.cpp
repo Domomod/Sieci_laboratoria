@@ -25,6 +25,19 @@ int CMIBTree ::insert_add(const std::vector<int> &oid, const CTrieNode &node)
     return 0;
 }
 
+tree<CTrieNode>::iterator CMIBTree ::find_name(std::string name)
+{
+    auto find_iter = oid_map.find(name); 
+
+return find_iter;
+}
+
+tree<CTrieNode>::iterator CMIBTree ::find_oid(int oid_n)
+{
+    auto find_iter = oid_map.find(oid_n); 
+    return find_iter;
+}
+
 CMIBTree ::CMIBTree() : head(tree_mib.set_head(CTrieNode("mib", 1)))
 {
 }
