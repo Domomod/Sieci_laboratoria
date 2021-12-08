@@ -14,9 +14,15 @@ namespace CmibParser
     //║ Stateless parser function ║
     //╚═══════════════════════════╝
 
-    CMIBobject parse_obj(const std::string& str);
+    std::shared_ptr<CMIBobject> parse_obj(
+        const std::string& str
+    );
 
-    type_declaration parse_type(const std::string& str);
+    std::tuple<std::string, std::shared_ptr<CMIBType>> parse_type(
+        const std::string& str
+    );
 
-    std::shared_ptr<CMIBType> parse_syntax(const std::string& str);
+    std::shared_ptr<CMIBType> parse_syntax(
+        const std::string& str
+    );
 }

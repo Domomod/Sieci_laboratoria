@@ -6,7 +6,7 @@ class CTrieNode
 private:
     std::string name;
     int oid;
-    CMIBobject object_mib_ptr;
+    std::shared_ptr<CMIBobject> object_mib_ptr;
 
 public:
     CTrieNode();

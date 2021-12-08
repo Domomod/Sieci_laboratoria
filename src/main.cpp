@@ -11,11 +11,9 @@
 
 int main(int, char **)
 {
-    std::ifstream t("data/RFC1213-modified.mib");
-    std::string str((std::istreambuf_iterator<char>(t)),
-                     std::istreambuf_iterator<char>());
-
-    CmibFileSequencer::parse_all(str);
+    CmibFileSequencer fileSequencer;
+    fileSequencer.initialize("data/RFC1213-MIB.mib");
+    //fileSequencer.initialize("data/SNMPv2-SMI.mib");
 
     CMIBTree cmibTree;
     cmibTree.insert_add({}, CTrieNode("system", 1));

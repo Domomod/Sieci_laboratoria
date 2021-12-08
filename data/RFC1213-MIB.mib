@@ -1,62 +1,23 @@
--- *****************************************************************
--- RFC1213-MIB.my:  MIB-II MIB file
---
--- April 1994, Jeffrey T. Johnson
---
--- Copyright (c) 1994-1996 by cisco Systems, Inc.
--- All rights reserved.
--- 
--- *****************************************************************
---
--- This mib was extracted from RFC 1213
--- The following changes have been applied:
---	The enumerations unknown(4) and dormant(5) have been added to
---	ifOperStatus to reflect a change to the ifTable introduced in
---	RFC 1573
---
---	The SYNTAX of ifType has been changed to IANAifType, to reflect the
---	change to the ifTable introduced in RFC1573.
-
           RFC1213-MIB DEFINITIONS ::= BEGIN
 
           IMPORTS
-                  mgmt, NetworkAddress, IpAddress, Counter, Gauge,
-                          TimeTicks
-                      FROM RFC1155-SMI
-                  OBJECT-TYPE
-                          FROM RFC-1212
-		  TEXTUAL-CONVENTION
-			  FROM SNMPv2-TC
-	          IANAifType   
-                          FROM IANAifType-MIB;
-
-          --  This MIB module uses the extended OBJECT-TYPE macro as
-          --  defined in [14];
-
-
-          --  MIB-II (same prefix as MIB-I)
+                mgmt, NetworkAddress, IpAddress, Counter, Gauge,
+                TimeTicks
+                    FROM RFC1155-SMI
+                OBJECT-TYPE
+                    FROM RFC-1212
+		        TEXTUAL-CONVENTION
+			        FROM SNMPv2-TC
+	            IANAifType   
+                    FROM IANAifType-MIB;
 
           mib-2      OBJECT IDENTIFIER ::= { mgmt 1 }
 
-          -- textual conventions
-
           DisplayString ::=
               OCTET STRING
-          -- This data type is used to model textual information taken
-          -- from the NVT ASCII character set.  By convention, objects
-          -- with this syntax are declared as having
-          --
-          --      SIZE (0..255)
 
           PhysAddress ::= 
 		OCTET STRING
-          -- This data type is used to model media addresses.  For many
-          -- types of media, this will be in a binary representation.
-          -- For example, an ethernet address would be represented as
-          -- a string of 6 octets.
-
-
-          -- groups in MIB-II
 
           system       OBJECT IDENTIFIER ::= { mib-2 1 }
 
@@ -74,20 +35,9 @@
 
           egp          OBJECT IDENTIFIER ::= { mib-2 8 }
 
-          -- historical (some say hysterical)
-          -- cmot      OBJECT IDENTIFIER ::= { mib-2 9 }
-
           transmission OBJECT IDENTIFIER ::= { mib-2 10 }
 
           snmp         OBJECT IDENTIFIER ::= { mib-2 11 }
-
-
-          -- the System group
-
-          -- Implementation of the System group is mandatory for all
-          -- systems.  If an agent is not configured to have a value
-          -- for any of these variables, a string of length 0 is
-          -- returned.
 
           sysDescr OBJECT-TYPE
               SYNTAX  DisplayString (SIZE (0..255))
@@ -189,11 +139,6 @@
                       6 may also be counted."
               ::= { system 7 }
 
-          -- the Interfaces group
-
-          -- Implementation of the Interfaces group is mandatory for
-          -- all systems.
-
           ifNumber OBJECT-TYPE
               SYNTAX  INTEGER
               ACCESS  read-only
@@ -202,16 +147,6 @@
                       "The number of network interfaces (regardless of
                       their current state) present on this system."
               ::= { interfaces 1 }
-
-
-          -- the Interfaces table
-
-          -- The Interfaces table contains information on the entity's
-          -- interfaces.  Each interface is thought of as being
-          -- attached to a `subnetwork'.  Note that this term should
-          -- not be confused with `subnet' which refers to an
-          -- addressing partitioning scheme used in the Internet suite
-          -- of protocols.
 
           ifTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF IfEntry
@@ -315,7 +250,6 @@
          	       Authority (IANA), through updating the syntax of the
  	               IANAifType textual convention."
  	      ::= { ifEntry 3 }
- 
 
           ifMtu OBJECT-TYPE
               SYNTAX  INTEGER
@@ -356,9 +290,9 @@
 
           ifAdminStatus OBJECT-TYPE
               SYNTAX  INTEGER {
-                          up(1),       -- ready to pass packets
+                          up(1),       
                           down(2),
-                          testing(3)   -- in some test mode
+                          testing(3)   
                       }
               ACCESS  read-write
               STATUS  mandatory
@@ -370,9 +304,9 @@
 
           ifOperStatus OBJECT-TYPE
               SYNTAX  INTEGER {
-                          up(1),       -- ready to pass packets
+                          up(1),       
                           down(2),
-                          testing(3),   -- in some test mode
+                          testing(3),   
                           unknown(4),
                           dormant(5)
                       }
@@ -538,31 +472,6 @@
                       generate and recognize this value."
               ::= { ifEntry 22 }
 
-
-          -- the Address Translation group
-
-          -- Implementation of the Address Translation group is
-          -- mandatory for all systems.  Note however that this group
-          -- is deprecated by MIB-II. That is, it is being included
-          -- solely for compatibility with MIB-I nodes, and will most
-          -- likely be excluded from MIB-III nodes.  From MIB-II and
-          -- onwards, each network protocol group contains its own
-          -- address translation tables.
-
-          -- The Address Translation group contains one table which is
-          -- the union across all interfaces of the translation tables
-          -- for converting a NetworkAddress (e.g., an IP address) into
-          -- a subnetwork-specific address.  For lack of a better term,
-          -- this document refers to such a subnetwork-specific address
-          -- as a `physical' address.
-
-          -- Examples of such translation tables are: for broadcast
-          -- media where ARP is in use, the translation table is
-          -- equivalent to the ARP cache; or, on an X.25 network where
-          -- non-algorithmic translation to X.121 addresses is
-          -- required, the translation table contains the
-          -- NetworkAddress to X.121 address equivalences.
-
           atTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF AtEntry
               ACCESS  not-accessible
@@ -642,16 +551,10 @@
                       address."
               ::= { atEntry 3 }
 
-
-          -- the IP group
-
-          -- Implementation of the IP group is mandatory for all
-          -- systems.
-
           ipForwarding OBJECT-TYPE
               SYNTAX  INTEGER {
-                          forwarding(1),    -- acting as a gateway
-                          not-forwarding(2) -- NOT acting as a gateway
+                          forwarding(1),    
+                          not-forwarding(2) 
                       }
               ACCESS  read-write
               STATUS  mandatory
@@ -878,13 +781,6 @@
                       this entity."
               ::= { ip 19 }
 
-
-
-          -- the IP address table
-
-          -- The IP address table contains this entity's IP addressing
-          -- information.
-
           ipAddrTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF IpAddrEntry
               ACCESS  not-accessible
@@ -926,7 +822,6 @@
                       "The IP address to which this entry's addressing
                       information pertains."
               ::= { ipAddrEntry 1 }
-
 
           ipAdEntIfIndex OBJECT-TYPE
               SYNTAX  INTEGER
@@ -975,11 +870,6 @@
                       entity can re-assemble from incoming IP fragmented
                       datagrams received on this interface."
               ::= { ipAddrEntry 5 }
-
-          -- the IP routing table
-
-          -- The IP routing table contains an entry for each route
-          -- presently known to this entity.
 
           ipRouteTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF IpRouteEntry
@@ -1117,14 +1007,13 @@
 
           ipRouteType OBJECT-TYPE
               SYNTAX  INTEGER {
-                          other(1),        -- none of the following
+                          other(1),        
 
-                          invalid(2),      -- an invalidated route
-                                           -- route to directly
-                          direct(3),       -- connected (sub-)network
+                          invalid(2),      
 
-                                           -- route to a non-local
-                          indirect(4)      -- host/network/sub-network
+                          direct(3),       
+
+                          indirect(4)      
                       }
               ACCESS  read-write
               STATUS  mandatory
@@ -1151,21 +1040,14 @@
 
           ipRouteProto OBJECT-TYPE
               SYNTAX  INTEGER {
-                          other(1),       -- none of the following
+                          other(1),       
 
-                                          -- non-protocol information,
-                                          -- e.g., manually configured
-                          local(2),       -- entries
+                          local(2),       
 
-                                          -- set via a network
-                          netmgmt(3),     -- management protocol
+                          netmgmt(3),     
 
-                                          -- obtained via ICMP,
-                          icmp(4),        -- e.g., Redirect
+                          icmp(4),        
 
-                                          -- the remaining values are
-                                          -- all gateway routing
-                                          -- protocols
                           egp(5),
                           ggp(6),
                           hello(7),
@@ -1251,16 +1133,6 @@
                       able to generate and recognize this value."
               ::= { ipRouteEntry 13 }
 
-
-          -- the IP Address Translation table
-
-          -- The IP address translation table contain the IpAddress to
-          -- `physical' address equivalences.  Some interfaces do not
-          -- use translation tables for determining address
-          -- equivalences (e.g., DDN-X.25 has an algorithmic method);
-          -- if all interfaces are of this type, then the Address
-          -- Translation table is empty, i.e., has zero entries.
-
           ipNetToMediaTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF IpNetToMediaEntry
               ACCESS  not-accessible
@@ -1324,8 +1196,8 @@
 
           ipNetToMediaType OBJECT-TYPE
               SYNTAX  INTEGER {
-                          other(1),        -- none of the following
-                          invalid(2),      -- an invalidated mapping
+                          other(1),        
+                          invalid(2),      
                           dynamic(3),
                           static(4)
                       }
@@ -1349,9 +1221,6 @@
                       ipNetToMediaType object."
               ::= { ipNetToMediaEntry 4 }
 
-
-          -- additional IP objects
-
           ipRoutingDiscards OBJECT-TYPE
               SYNTAX  Counter
               ACCESS  read-only
@@ -1363,12 +1232,6 @@
                       be to free-up buffer space for other routing
                       entries."
               ::= { ip 23 }
-
-
-          -- the ICMP group
-
-          -- Implementation of the ICMP group is mandatory for all
-          -- systems.
 
           icmpInMsgs OBJECT-TYPE
               SYNTAX  Counter
@@ -1407,7 +1270,6 @@
                       "The number of ICMP Time Exceeded messages
                       received."
               ::= { icmp 4 }
-
 
           icmpInParmProbs OBJECT-TYPE
               SYNTAX  Counter
@@ -1600,7 +1462,6 @@
                       sent."
               ::= { icmp 25 }
 
-
           icmpOutAddrMaskReps OBJECT-TYPE
               SYNTAX  Counter
               ACCESS  read-only
@@ -1610,24 +1471,13 @@
                       sent."
               ::= { icmp 26 }
 
-
-          -- the TCP group
-
-          -- Implementation of the TCP group is mandatory for all
-          -- systems that implement the TCP.
-
-          -- Note that instances of object types that represent
-          -- information about a particular TCP connection are
-          -- transient; they persist only as long as the connection
-          -- in question.
-
           tcpRtoAlgorithm OBJECT-TYPE
               SYNTAX  INTEGER {
-                          other(1),    -- none of the following
+                          other(1),    
 
-                          constant(2), -- a constant rto
-                          rsre(3),     -- MIL-STD-1778, Appendix B
-                          vanj(4)      -- Van Jacobson's algorithm [10]
+                          constant(2), 
+                          rsre(3),     
+                          vanj(4)      
                       }
               ACCESS  read-only
               STATUS  mandatory
@@ -1650,7 +1500,6 @@
                       an object of this type has the semantics of the
                       LBOUND quantity described in RFC 793."
               ::= { tcp 2 }
-
 
           tcpRtoMax OBJECT-TYPE
               SYNTAX  INTEGER
@@ -1762,12 +1611,6 @@
                       containing one or more previously transmitted
                       octets."
               ::= { tcp 12 }
-
-
-          -- the TCP Connection table
-
-          -- The TCP connection table contains information about this
-          -- entity's existing TCP connections.
 
           tcpConnTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF TcpConnEntry
@@ -1883,9 +1726,6 @@
                       "The remote port number for this TCP connection."
               ::= { tcpConnEntry 5 }
 
-
-          -- additional TCP objects
-
           tcpInErrs OBJECT-TYPE
               SYNTAX  Counter
               ACCESS  read-only
@@ -1903,12 +1743,6 @@
                       "The number of TCP segments sent containing the
                       RST flag."
               ::= { tcp 15 }
-
-
-          -- the UDP group
-
-          -- Implementation of the UDP group is mandatory for all
-          -- systems which implement the UDP.
 
           udpInDatagrams OBJECT-TYPE
               SYNTAX  Counter
@@ -1947,13 +1781,6 @@
                       "The total number of UDP datagrams sent from this
                       entity."
               ::= { udp 4 }
-
-
-          -- the UDP Listener table
-
-          -- The UDP listener table contains information about this
-          -- entity's UDP end-points on which a local application is
-          -- currently accepting datagrams.
 
           udpTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF UdpEntry
@@ -2000,12 +1827,6 @@
                       "The local port number for this UDP listener."
               ::= { udpEntry 2 }
 
-
-          -- the EGP group
-
-          -- Implementation of the EGP group is mandatory for all
-          -- systems which implement the EGP.
-
           egpInMsgs OBJECT-TYPE
               SYNTAX  Counter
               ACCESS  read-only
@@ -2042,12 +1863,6 @@
                       sent due to resource limitations within an EGP
                       entity."
               ::= { egp 4 }
-
-
-          -- the EGP Neighbor table
-
-          -- The EGP neighbor table contains information about this
-          -- entity's EGP neighbors.
 
           egpNeighTable OBJECT-TYPE
               SYNTAX  SEQUENCE OF EgpNeighEntry
@@ -2264,9 +2079,6 @@
                       otherwise."
               ::= { egpNeighEntry 15 }
 
-
-          -- additional EGP objects
-
           egpAs OBJECT-TYPE
               SYNTAX  INTEGER
               ACCESS  read-only
@@ -2274,43 +2086,6 @@
               DESCRIPTION
                       "The autonomous system number of this EGP entity."
               ::= { egp 6 }
-
-          -- the Transmission group
-
-          -- Based on the transmission media underlying each interface
-          -- on a system, the corresponding portion of the Transmission
-          -- group is mandatory for that system.
-
-          -- When Internet-standard definitions for managing
-          -- transmission media are defined, the transmission group is
-          -- used to provide a prefix for the names of those objects.
-
-          -- Typically, such definitions reside in the experimental
-          -- portion of the MIB until they are "proven", then as a
-          -- part of the Internet standardization process, the
-          -- definitions are accordingly elevated and a new object
-          -- identifier, under the transmission group is defined. By
-          -- convention, the name assigned is:
-          --
-          --     type OBJECT IDENTIFIER    ::= { transmission number }
-          --
-          -- where "type" is the symbolic value used for the media in
-          -- the ifType column of the ifTable object, and "number" is
-          -- the actual integer value corresponding to the symbol.
-
-
-          -- the SNMP group
-
-          -- Implementation of the SNMP group is mandatory for all
-          -- systems which support an SNMP protocol entity.  Some of
-          -- the objects defined below will be zero-valued in those
-          -- SNMP implementations that are optimized to support only
-          -- those functions specific to either a management agent or
-          -- a management station.  In particular, it should be
-          -- observed that the objects below refer to an SNMP entity,
-          -- and there may be several SNMP entities residing on a
-          -- managed node (e.g., if the node is hosting acting as
-          -- a management station).
 
           snmpInPkts OBJECT-TYPE
               SYNTAX  Counter
@@ -2371,8 +2146,6 @@
                       encountered by the SNMP protocol entity when
                       decoding received SNMP Messages."
               ::= { snmp 6 }
-
-          -- { snmp 7 } is not used
 
           snmpInTooBigs OBJECT-TYPE
               SYNTAX  Counter
@@ -2538,8 +2311,6 @@
                       which the value of the error-status field is
                       `badValue'."
               ::= { snmp 22 }
-
-          -- { snmp 23 } is not used
 
           snmpOutGenErrs OBJECT-TYPE
               SYNTAX  Counter

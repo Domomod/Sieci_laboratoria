@@ -2,36 +2,60 @@
 #include "cmib_regex.hpp"
 
 namespace CmibParser{
+using namespace CmibRegex;
 
-
-CMIBobject parse_obj(const std::string& str)
-{
-    static const std::regex regexp(object_type_regexp_str);
+std::shared_ptr<CMIBobject> parse_obj(
+        const std::string& str
+    )
+{    
     std::smatch match;
-    std::regex_search(str, match, regexp);
+    static const std::regex type_definition_regexp(object_type_regexp_str);
+    std::regex_search(str, match, type_definition_regexp);
 
-    CMIBobject o;
 
-    //const std::string & syntax_bloated = match[2].str(); 
-    //std::cout << "SYNTAX:\t " << match[2] <<"\n";
-    //syntax_t syntax = parse_syntax(syntax_bloated);
 
-    // o.syntax(syntax);
-    // o.access((access_t)match[3].str());
-    // o.status((status_t)match[4].str());
+    std::cout << str << "\n";
+    std::cout << "IDENTI:\t" << match[1] << "\n";
+    std::cout << "SYNTAX:\t" << match[2] <<"\n";
+    std::cout << "ACCESS:\t" << match[3] << "\n";
+    std::cout << "STATUS:\t" << match[4] << "\n";
+    std::cout << "DESCRI:\t" << match[5] << "\n";
+    std::cout << "INDEX :\t" << match[6] << "\n";
+    std::cout << "OID   :\t" << match[7] << "\n";
+    std::cout << "==============================================\n\n\n";
 
-    // std::cout << "IDENTI:\t" << match[1] << "\n";
-    // std::cout << "ACCESS:\t" << match[3] << "\n";
-    // std::cout << "STATUS:\t" << match[4] << "\n";
-    // std::cout << "DESCRI:\t" << match[5] << "\n";
-    // std::cout << "INDEX :\t" << match[6] << "\n";
-    // std::cout << "OID   :\t" << match[7] << "\n";
-    // std::cout << "==============================================\n\n\n";
+    std::string syntax_bloated = match[2].str(); 
 
-    return o;
+    std::smatch type_match;
+    static const std::regex simple_syntax_regexp(object_simple_syntax_regexp_str);
+    std::regex_search(syntax_bloated, type_match, simple_syntax_regexp);
+    if(type_match[0].matched and type_match[0].str().find("SEQUENCE") == std::string::npos)
+    {
+        return std::make_shared<CMIBobject>(
+            match[1],
+            match[5],
+            (access_t) match[3].str(),
+            (status_t) match[4].str(),
+            type_match[1]
+        );
+    }
+    else
+    {
+        std::shared_ptr<CMIBType> type = parse_syntax(syntax_bloated);
+
+        return std::make_shared<CMIBobject>(
+            match[1],
+            match[5],
+            (access_t) match[3].str(),
+            (status_t) match[4].str(),
+            type
+        );
+    }
 }
 
-type_declaration parse_type(const std::string& str)
+std::tuple<std::string, std::shared_ptr<CMIBType>> parse_type(
+        const std::string& str
+    )
 {
     static const std::regex regexp(type_declaration_regexp_str);
     std::smatch match;
@@ -39,24 +63,43 @@ type_declaration parse_type(const std::string& str)
 
     // std::cout << str << "\n\n";
 
-    // std::cout << "LABEL      :\t" << match[1] << "\n";
-    // std::cout << "APPLICATION:\t" << match[2] << "\n";
-    // std::cout << "ACCESS     :\t" << match[3] << "\n";
-    std::cout << "TYPE       :\t" << match[4] << "\n";
+    std::cout <<  "================[parsing  ]=====================\n";
+    std::cout << str << "\n";
+    std::cout << "LABEL      : |" << match[1] << "|\n";
+    std::cout << "APPLICATION: |" << match[2] << "|\n";
+    std::cout << "ACCESS     : |" << match[3] << "|\n";
+    std::cout << "TYPE       : |" << match[4] << "|\n";
 
     auto type = parse_syntax(match[4]);
-    std::cout << "================[Parsed as]=====================\n\n\n";
+    type->type_name = match[1];
+    type->application = match[2];
+    type->implicitness = match[3];
+
+    std::cout << "================[Parsed as]=====================\n";
     type->print();
     std::cout << "==============================================\n\n\n";
+    
 
-
-
-    return type_declaration{0};
+    return {match[1], type};
 }
 
+std::shared_ptr<CMIBType> make_CmibType(
+    const std::string& derrived_name, 
+    const std::string& restriction, 
+    _SYNTAX_e e
+    )
+{
+    std::shared_ptr<CMIBType> cmibType;
+    cmibType = std::make_shared<CMIBType>(std::shared_ptr<CMIBType>(nullptr), e);
+    cmibType->derrived_name = derrived_name;
+    cmibType->restrictions = restriction;
+    
+    return cmibType;
+}
 
-
-std::shared_ptr<CMIBType> parse_syntax(const std::string& str)
+std::shared_ptr<CMIBType> parse_syntax(
+        const std::string& str
+    )
 {
     static const std::regex sequence_regexp(sequence_regexp_str);
     static const std::regex sequence_of_regexp(sequence_of_regexp_str);
@@ -66,17 +109,9 @@ std::shared_ptr<CMIBType> parse_syntax(const std::string& str)
     std::shared_ptr<CMIBType> cmibType;
     if(std::regex_search(str, match, sequence_of_regexp))
     {
-        std::string type = match[1];
-
-        std::shared_ptr<CMIBType> seqOf;
-        syntax_t syntax = (syntax_t) type;
-
-        if (syntax.get() != _SYNTAX_e_MAX_ENUM)
-            seqOf = std::make_shared<CMIBType>(syntax, type);
-        else
-            seqOf = std::make_shared<CMIBType>(type);
-
-        cmibType = std::make_shared<CMIBType>(seqOf);
+        std::string derrived_name = match[1];
+        std::string restrictions = match[2];
+        cmibType = make_CmibType( derrived_name, restrictions, SEQUENCE_OF);
     }
     else if(std::regex_search(str, match, sequence_regexp))
     {
@@ -86,17 +121,17 @@ std::shared_ptr<CMIBType> parse_syntax(const std::string& str)
                         std::sregex_iterator(),
                         [&] (const auto& match) {
                             std::string identifier = match[1];
-                            std::string type = match[2];
-                            if(!(identifier.empty() or type.empty()))
-                            {
-                                std::shared_ptr<CMIBType> seqEntry;
-                                syntax_t syntax = (syntax_t) type;
-                                if (syntax.get() != _SYNTAX_e_MAX_ENUM)
-                                    seqEntry = std::make_shared<CMIBType>(syntax, type);
-                                else
-                                    seqEntry = std::make_shared<CMIBType>(type);
+                            std::string derrived_name = match[2];
+                            std::string restrictions = match[3];
 
-                                sequence.push_back(seqEntry);
+                            if(!(identifier.empty() or derrived_name.empty()))
+                            {
+                                std::cout << "Sequence member " << identifier << " is derrived from " << derrived_name << " and has restrictions (" << restrictions << ")\n";
+                                auto sequence_type = make_CmibType(derrived_name, restrictions, DERRIVED_TYPE);
+                                sequence_type->type_name = identifier;
+                                sequence.push_back(
+                                    sequence_type
+                                );
                             }
                         });
 
@@ -104,13 +139,10 @@ std::shared_ptr<CMIBType> parse_syntax(const std::string& str)
     }
     else if(std::regex_search(str, match, syntax_type))
     {
-        std::string type = match[1];
-
-        syntax_t syntax = (syntax_t) type;
-        if (syntax.get() != _SYNTAX_e_MAX_ENUM)
-            cmibType = std::make_shared<CMIBType>(syntax, type);
-        else
-            cmibType = std::make_shared<CMIBType>(type);
+        std::string derrived_name = match[1];
+        std::string restrictions = match[2];
+        std::cout << "DERRIVED  REG|" << derrived_name << "|\n";
+        cmibType = make_CmibType( derrived_name, restrictions, DERRIVED_TYPE);
     }
 
     return cmibType;

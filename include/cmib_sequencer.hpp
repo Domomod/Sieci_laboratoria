@@ -3,11 +3,21 @@
 #include <string>
 #include <regex>
 #include <algorithm>
-#include "types.hpp"
+#include <set>
+#include "cmib_object.hpp"
 
 #pragma once
 
-namespace CmibFileSequencer
+class CmibFileSequencer
 {
-    int parse_all(const std::string& str);
-}
+    private:
+        std::set<std::string> already_parsed_guard;
+        std::map<std::string, std::shared_ptr<CMIBType>> types_map;
+        std::vector<std::shared_ptr<CMIBobject>> parsed_objects;
+    public:
+        int initialize(const std::string& path);
+        int parse_file(const std::string& path);
+        int fill_derrived_types();
+        int process_imports(const std::string& imports_definiton);
+        int parse_dependencies(const std::string& str);
+};

@@ -55,10 +55,11 @@ add_executable( main
 ./src/main.cpp 
 ./src/cmib_enum.cpp
 ./src/cmib_object.cpp 
+./src/cmib_parser.cpp  
+./src/cmib_sequencer.cpp
 ./src/cmib_tree.cpp 
 ./src/ctree_node.cpp
-./src/cmib_parser.cpp  
-./src/cmib_sequencer.cpp)
+)
 
 
 # external libs

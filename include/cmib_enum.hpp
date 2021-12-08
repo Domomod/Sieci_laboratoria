@@ -9,10 +9,11 @@ enum _SYNTAX_e : uint8_t
     OCTET_STRING,
     INTEGER,
     OBJECT_IDENTIFIER,
-    //NULL_T,
+    NULL_T,
     IMPORT_S,
     SEQUENCE,
     SEQUENCE_OF,
+    DERRIVED_TYPE,
     _SYNTAX_e_MAX_ENUM
 };
 

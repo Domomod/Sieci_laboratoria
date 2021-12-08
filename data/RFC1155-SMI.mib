@@ -1,13 +1,11 @@
 RFC1155-SMI DEFINITIONS ::= BEGIN
 
-EXPORTS -- EVERYTHING
+EXPORTS 
         internet, directory, mgmt,
         experimental, private, enterprises,
         OBJECT-TYPE, ObjectName, ObjectSyntax, SimpleSyntax,
         ApplicationSyntax, NetworkAddress, IpAddress,
         Counter, Gauge, TimeTicks, Opaque;
-
- -- the path to the root
 
  internet      OBJECT IDENTIFIER ::= { iso org(3) dod(6) 1 }
 
@@ -18,9 +16,8 @@ EXPORTS -- EVERYTHING
  experimental  OBJECT IDENTIFIER ::= { internet 3 }
 
  private       OBJECT IDENTIFIER ::= { internet 4 }
- enterprises   OBJECT IDENTIFIER ::= { private 1 }
 
- -- definition of object types
+ enterprises   OBJECT IDENTIFIER ::= { private 1 }
 
  OBJECT-TYPE MACRO ::=
  BEGIN
@@ -38,38 +35,29 @@ EXPORTS -- EVERYTHING
                      | "obsolete"
  END
 
-    -- names of objects in the MIB
-
     ObjectName ::=
         OBJECT IDENTIFIER
 
-    -- syntax of objects in the MIB
+    SimpleSyntax ::=
+        CHOICE {
+            number
+                INTEGER,
+            string
+                OCTET STRING,
+            object
+                OBJECT IDENTIFIER,
+            empty
+                NULL
+        }
+
 
     ObjectSyntax ::=
         CHOICE {
             simple
                 SimpleSyntax,
-    -- note that simple SEQUENCEs are not directly
-    -- mentioned here to keep things simple (i.e.,
-    -- prevent mis-use).  However, application-wide
-    -- types which are IMPLICITly encoded simple
-    -- SEQUENCEs may appear in the following CHOICE
-
             application-wide
                 ApplicationSyntax
         }
-
-       SimpleSyntax ::=
-           CHOICE {
-               number
-                   INTEGER,
-               string
-                   OCTET STRING,
-               object
-                   OBJECT IDENTIFIER,
-               empty
-                   NULL
-           }
 
        ApplicationSyntax ::=
            CHOICE {
@@ -83,12 +71,7 @@ EXPORTS -- EVERYTHING
                    TimeTicks,
                arbitrary
                    Opaque
-
-       -- other application-wide types, as they are
-       -- defined, will be added here
            }
-
-       -- application-wide types
 
        NetworkAddress ::=
            CHOICE {
@@ -97,7 +80,7 @@ EXPORTS -- EVERYTHING
            }
 
        IpAddress ::=
-           [APPLICATION 0]          -- in network-byte order
+           [APPLICATION 0]          
                IMPLICIT OCTET STRING (SIZE (4))
 
        Counter ::=
@@ -113,7 +96,7 @@ EXPORTS -- EVERYTHING
                IMPLICIT INTEGER (0..4294967295)
 
        Opaque ::=
-           [APPLICATION 4]          -- arbitrary ASN.1 value,
-               IMPLICIT OCTET STRING   --   "double-wrapped"
+           [APPLICATION 4]          
+               IMPLICIT OCTET STRING   
 
        END
