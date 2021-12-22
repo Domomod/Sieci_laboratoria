@@ -92,7 +92,8 @@ struct cber_length
 struct cber_code{
     cber_identifier identifier;
     cber_length length;
-    std::vector<uint8_t> content; // Can be empty
+    std::vector<uint8_t> content;   // Can be empty - used in regular types
+    std::vector<cber_code> seq_content; // Can be empty - used in Sequences
 };
 
 void print_byte_as_bits(char val) {
@@ -128,6 +129,14 @@ public:
         }
     }
 
+    void print_content_hex(const std::vector<uint8_t>& content)
+    {
+        for(auto & u8 : content)
+        {
+            printf("%02X ",u8);
+        }
+    }
+
     void print_identifier_bin(const cber_identifier & identifier)
     {
         print_byte_as_bits(identifier.header.u8);
@@ -146,17 +155,28 @@ public:
         }
     }
 
+    void print_content_bin(const std::vector<uint8_t>& content)
+    {
+        for(auto & u8 : content)
+        {
+            print_byte_as_bits(u8);
+        }
+    }
+
+
 
     void print_code(const cber_code & code)
     {
-        // Print bytes
+        // Print hex
         print_identifier_hex(code.identifier);
         print_length_hex(code.length);
+        print_content_hex(code.content);
         printf("\n");
 
-        // Print hex
+        // Print bin
         print_identifier_bin(code.identifier);
         print_length_bin(code.length);
+        print_content_bin(code.content);
         printf("\n");
     }
 
@@ -210,21 +230,64 @@ public:
         return identifier;
     }
 
-    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc, uint64_t tag)
+    void  encodeValue(size_t len_v, void* src, std::vector<uint8_t>& dst)
+    {
+        dst.resize(len_v);
+        memcpy(&dst[0], src, len_v);
+    }
+
+    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc)
     {
         cber_code code;
-
-        printf("Encoding INTEGER %llu, tag %d\n", Integer, tag);
-        code.identifier = encodeIdentifier(vis,pc,tag);
         size_t length_bits = uint64_log2(Integer) + 1;
         size_t length_bytes = length_bits / 8 + (length_bits % 8 != 0);
+        if(length_bytes == 0) length_bytes = 1; //Encoding zero
+        printf("Encoding INTEGER %llu, length %zu\n", Integer, length_bytes);
+        code.identifier = encodeIdentifier(vis,pc,0x02);
+        code.length = encodeLength(length_bytes);
+        uint8_t * ptrInteger = (uint8_t*)&Integer;
+        //ptrInteger += sizeof(uint64_t) - length_bytes;
+        encodeValue(length_bytes, ptrInteger, code.content);
+        print_code(code);
+        return code;
+    }
+
+    cber_code encodeBool(bool Boolean, visibility_t vis, PC_t pc)
+    {
+        cber_code code;
+        printf("Encoding BOOLEAN %u\n", Boolean);
+        code.identifier = encodeIdentifier(vis,pc,0x02);
+        size_t length_bytes = sizeof(bool);
+        code.length = encodeLength(length_bytes);
+        encodeValue(length_bytes, &Boolean, code.content);
+        print_code(code);
+        return code;
+    }
+    
+    cber_code encodeOctetString(const std::string& str, visibility_t vis, PC_t pc)
+    {
+        cber_code code;
+        printf("Encoding OCTET STRING %s\n", str.c_str());
+        code.identifier = encodeIdentifier(vis,pc,0x04);
+        size_t length_bytes = str.size();
+        code.length = encodeLength(length_bytes);
+        encodeValue(length_bytes, (void*)str.c_str(), code.content); //Aware of dropping const
+
+        print_code(code);
+        return code;
+    }
+
+    cber_code encodeNull(visibility_t vis, PC_t pc)
+    {
+        cber_code code;
+        printf("Encoding NULL\n");
+        code.identifier = encodeIdentifier(vis,pc,0x05);
+        size_t length_bytes = 0;
         code.length = encodeLength(length_bytes);
         print_code(code);
         return code;
     }
-    cber_code encodeOctetString();
-    cber_code encodeNull();
-    cber_code encodeObjectIdentifier();
+
     //void encodeByteArray();
 /* -----------------
  * - Complex Types -
