@@ -32,7 +32,7 @@ enum class PC_t
 
 
 __attribute__((packed))
-struct cber_identifier
+struct cber_identifier_header
 {
     union
     {
@@ -41,7 +41,7 @@ struct cber_identifier
             uint8_t constructed :1;
             uint8_t class_id :2;
         }__attribute__((packed));
-        uint8_t identifier;
+        uint8_t u8;
     };
 };
 
@@ -54,12 +54,12 @@ struct cber_identifer_octet
             uint8_t value :7;
             uint8_t last_flag :1;
         };
-        uint8_t octet;
+        uint8_t u8;
     };
 };
 
 __attribute__((packed))
-struct cber_length
+struct cber_length_header
 {
     union
     {
@@ -67,21 +67,31 @@ struct cber_length
             uint8_t value :7;
             uint8_t long_flag :1;
         };
-        uint8_t length;
+        uint8_t u8;
     };
 };
 
 __attribute__((packed))
 struct cber_length_octet
 {
-    uint8_t length;
+    uint8_t u8;
+};
+
+struct cber_identifier
+{
+    cber_identifier_header header;
+    std::vector<cber_identifer_octet> octets; // Can be empty
+};
+
+struct cber_length
+{
+    cber_length_header header;
+    std::vector<cber_length_octet> octets; // Can be empty
 };
 
 struct cber_code{
     cber_identifier identifier;
-    std::vector<cber_identifer_octet> identifier_octets; // Can be empty
     cber_length length;
-    std::vector<cber_length_octet> length_octets; // Can be empty
     std::vector<uint8_t> content; // Can be empty
 };
 
@@ -98,78 +108,118 @@ public:
 /* --------------
  * - Base Types -
  * -------------- */
-    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc, uint64_t tag)
-    {
-        cber_code code;
-        code.identifier.class_id = (uint8_t)vis;
-        code.identifier.constructed = (uint8_t)pc;
-        if(tag < 31)
-        {
-            code.identifier.tag = tag;
-        }
-        else
-        {
-            code.identifier.tag = -1u; //set bitfield to ones
-            size_t num_bits = uint64_log2(tag)+1;
-            size_t num_octets = num_bits / 7 + (num_bits % 7 != 0);
-            code.identifier_octets.resize(num_octets);
-            uint64_t tag_temp = tag;
-            for(int i = 0; i < num_octets; i++)
-            {
-                code.identifier_octets[num_octets - 1 - i].last_flag = 1;
-                code.identifier_octets[num_octets - 1 - i].value = (uint8_t)tag_temp; //Aware of the conversion loss
-                tag_temp >>= 7;
-            }
-            code.identifier_octets[num_octets - 1].last_flag = 0;
-        }
 
-        size_t length_bits = uint64_log2(Integer) + 1;
-        size_t length_bytes = length_bits / 8 + (length_bits % 8 != 0);
+    void print_identifier_hex(const cber_identifier & identifier)
+    {
+        printf("%02X ",identifier.header.u8);
+        for(auto & octet : identifier.octets)
+        {
+            printf("%02X ",octet.u8);
+        }
+    }
+
+    void print_length_hex(const cber_length & length)
+    {
+
+        printf("%02X ",length.header);
+        for(auto & octet : length.octets)
+        {
+            printf("%02X ",octet.u8);
+        }
+    }
+
+    void print_identifier_bin(const cber_identifier & identifier)
+    {
+        print_byte_as_bits(identifier.header.u8);
+        for(auto & octet : identifier.octets)
+        {
+            print_byte_as_bits(octet.u8);
+        }
+    }
+
+    void print_length_bin(const cber_length & length)
+    {
+        print_byte_as_bits(length.header.u8);
+        for(auto & octet : length.octets)
+        {
+            print_byte_as_bits(octet.u8);
+        }
+    }
+
+
+    void print_code(const cber_code & code)
+    {
+        // Print bytes
+        print_identifier_hex(code.identifier);
+        print_length_hex(code.length);
+        printf("\n");
+
+        // Print hex
+        print_identifier_bin(code.identifier);
+        print_length_bin(code.length);
+        printf("\n");
+    }
+
+    cber_length encodeLength(uint64_t length_bytes)
+    {
+        cber_length length;
         if(length_bytes< 128)
         {
-            code.length.long_flag = 0;
-            code.length.value = length_bytes;
+            length.header.long_flag = 0;
+            length.header.value = length_bytes;
         }
         else
         {
             size_t num_bits = uint64_log2(length_bytes) + 1;
             size_t num_octets = num_bits / 8 + (num_bits % 8 != 0);
-            code.length_octets.resize(num_octets);
+            length.octets.resize(num_octets);
             int length_bytes_temp = length_bytes;
             for(int i = 0; i < num_octets; i++)
             {
-                code.length_octets[num_octets - 1 - i].length = (uint8_t)length_bytes_temp; //Aware of the conversion loss
+                length.octets[num_octets - 1 - i].u8 = (uint8_t)length_bytes_temp; //Aware of the conversion loss
                 length_bytes_temp >>= 8;
             }
         }
+        return length;
+    }
 
-        // Print bytes
+    cber_identifier encodeIdentifier(visibility_t vis, PC_t pc, uint64_t tag)
+    {
+        cber_identifier identifier;
+        identifier.header.class_id = (uint8_t)vis;
+        identifier.header.constructed = (uint8_t)pc;
+        if(tag < 31)
+        {
+            identifier.header.tag = tag;
+        }
+        else
+        {
+            identifier.header.tag = -1u; //set bitfield to ones
+            size_t num_bits = uint64_log2(tag)+1;
+            size_t num_octets = num_bits / 7 + (num_bits % 7 != 0);
+            identifier.octets.resize(num_octets);
+            uint64_t tag_temp = tag;
+            for(int i = 0; i < num_octets; i++)
+            {
+                identifier.octets[num_octets - 1 - i].last_flag = 1;
+                identifier.octets[num_octets - 1 - i].value = (uint8_t)tag_temp; //Aware of the conversion loss
+                tag_temp >>= 7;
+            }
+            identifier.octets[num_octets - 1].last_flag = 0;
+        }
+        return identifier;
+    }
+
+    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc, uint64_t tag)
+    {
+        cber_code code;
+
         printf("Encoding INTEGER %llu, tag %d\n", Integer, tag);
-        print_byte_as_bits(code.identifier.identifier);
-        for(auto & octet : code.identifier_octets)
-        {
-            print_byte_as_bits(octet.octet);
-        }
-        printf("\n");
-        print_byte_as_bits(code.length.length);
-        for(auto & octet : code.length_octets)
-        {
-            print_byte_as_bits(octet.length);
-        }
-        printf("\n");
-
-        // Print hex
-        printf("%02X ",code.identifier.identifier);
-        for(auto & octet : code.identifier_octets)
-        {
-            printf("%02X ",octet.octet);
-        }
-        printf("%02X ",code.length.length);
-        for(auto & octet : code.length_octets)
-        {
-            printf("%02X ",octet.length);
-        }
-        printf("\n");
+        code.identifier = encodeIdentifier(vis,pc,tag);
+        size_t length_bits = uint64_log2(Integer) + 1;
+        size_t length_bytes = length_bits / 8 + (length_bits % 8 != 0);
+        code.length = encodeLength(length_bytes);
+        print_code(code);
         return code;
     }
     cber_code encodeOctetString();
@@ -181,6 +231,7 @@ public:
  * ----------------- */
     void startSequence();
     void endSequence();
+    
 private:
     void encode();
 };
