@@ -16,6 +16,13 @@ int uint64_log2(uint64_t n)
   #undef S
 }
 
+enum class universal_t
+{
+    UNIVERSAL,
+    IMPLICIT,
+    EXPLICIT
+};
+
 enum class visibility_t
 {
     UNIVERSAL = 0b00,
@@ -90,7 +97,7 @@ struct cber_length
 };
 
 struct cber_code{
-    cber_identifier identifier;
+    std::vector<cber_identifier> identifiers;
     cber_length length;
     std::vector<uint8_t> content;   // Can be empty - used in regular types
     std::vector<cber_code> seq_content; // Can be empty - used in Sequences
@@ -168,13 +175,15 @@ public:
     void print_code(const cber_code & code)
     {
         // Print hex
-        print_identifier_hex(code.identifier);
+        for(auto identifier : code.identifiers)
+            print_identifier_hex(identifier);
         print_length_hex(code.length);
         print_content_hex(code.content);
         printf("\n");
 
         // Print bin
-        print_identifier_bin(code.identifier);
+        for(auto identifier : code.identifiers)
+            print_identifier_bin(identifier);
         print_length_bin(code.length);
         print_content_bin(code.content);
         printf("\n");
@@ -203,7 +212,7 @@ public:
         return length;
     }
 
-    cber_identifier encodeIdentifier(visibility_t vis, PC_t pc, uint64_t tag)
+    cber_identifier encodeTag(visibility_t vis, PC_t pc, uint64_t tag)
     {
         cber_identifier identifier;
         identifier.header.class_id = (uint8_t)vis;
@@ -217,7 +226,10 @@ public:
             identifier.header.tag = -1u; //set bitfield to ones
             size_t num_bits = uint64_log2(tag)+1;
             size_t num_octets = num_bits / 7 + (num_bits % 7 != 0);
-            identifier.octets.resize(num_octets);
+            for(int i = 0; i < num_octets; i++)
+            {
+            identifier.octets.push_back(cber_identifer_octet());
+            }
             uint64_t tag_temp = tag;
             for(int i = 0; i < num_octets; i++)
             {
@@ -230,20 +242,38 @@ public:
         return identifier;
     }
 
+    void encodeIdentifier(std::vector<cber_identifier>& identifiers, visibility_t vis, PC_t pc, uint64_t tag, universal_t uei = universal_t::UNIVERSAL, uint64_t uei_tag = 0)
+    {
+        if(uei == universal_t::UNIVERSAL)
+        {
+            identifiers.push_back(encodeTag(vis, pc, tag));
+        }
+        else if(uei == universal_t::EXPLICIT)
+        {
+            identifiers.push_back(encodeTag(visibility_t::CONTEXT_SPECIFIC, PC_t::CONSTRUCTED, uei_tag)); //TODO: This is wrong, we forgot about length
+            identifiers.push_back(encodeTag(visibility_t::UNIVERSAL, PC_t::PRIMITIVE, tag));
+        }
+        else if(uei == universal_t::IMPLICIT)
+        {
+            identifiers.push_back(encodeTag(vis, pc, uei_tag));
+        }
+        
+    }
+
     void  encodeValue(size_t len_v, void* src, std::vector<uint8_t>& dst)
     {
         dst.resize(len_v);
         memcpy(&dst[0], src, len_v);
     }
 
-    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc)
+    cber_code encodeInteger(uint64_t Integer, visibility_t vis, PC_t pc, universal_t uei = universal_t::UNIVERSAL, uint64_t uei_tag = 0)
     {
         cber_code code;
         size_t length_bits = uint64_log2(Integer) + 1;
         size_t length_bytes = length_bits / 8 + (length_bits % 8 != 0);
         if(length_bytes == 0) length_bytes = 1; //Encoding zero
         printf("Encoding INTEGER %llu, length %zu\n", Integer, length_bytes);
-        code.identifier = encodeIdentifier(vis,pc,0x02);
+        encodeIdentifier(code.identifiers, vis,pc,0x02, uei, uei_tag);
         code.length = encodeLength(length_bytes);
         uint8_t * ptrInteger = (uint8_t*)&Integer;
         //ptrInteger += sizeof(uint64_t) - length_bytes;
@@ -256,7 +286,7 @@ public:
     {
         cber_code code;
         printf("Encoding BOOLEAN %u\n", Boolean);
-        code.identifier = encodeIdentifier(vis,pc,0x02);
+        encodeIdentifier(code.identifiers,vis,pc,0x02);
         size_t length_bytes = sizeof(bool);
         code.length = encodeLength(length_bytes);
         encodeValue(length_bytes, &Boolean, code.content);
@@ -268,7 +298,7 @@ public:
     {
         cber_code code;
         printf("Encoding OCTET STRING %s\n", str.c_str());
-        code.identifier = encodeIdentifier(vis,pc,0x04);
+        encodeIdentifier(code.identifiers, vis,pc,0x04);
         size_t length_bytes = str.size();
         code.length = encodeLength(length_bytes);
         encodeValue(length_bytes, (void*)str.c_str(), code.content); //Aware of dropping const
@@ -281,7 +311,7 @@ public:
     {
         cber_code code;
         printf("Encoding NULL\n");
-        code.identifier = encodeIdentifier(vis,pc,0x05);
+        encodeIdentifier(code.identifiers, vis,pc,0x05);
         size_t length_bytes = 0;
         code.length = encodeLength(length_bytes);
         print_code(code);

@@ -15,8 +15,8 @@
 int main(int, char **)
 {
     CberCoder coder;
-    coder.encodeInteger(std::numeric_limits<uint8_t>::max(),  visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
-    coder.encodeInteger(std::numeric_limits<uint16_t>::max(), visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
+    coder.encodeInteger(std::numeric_limits<uint8_t>::max(),  visibility_t::UNIVERSAL, PC_t::PRIMITIVE, universal_t::EXPLICIT, 5);
+    coder.encodeInteger(std::numeric_limits<uint16_t>::max(), visibility_t::UNIVERSAL, PC_t::PRIMITIVE, universal_t::IMPLICIT, 5);
     coder.encodeInteger(std::numeric_limits<uint32_t>::max(), visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
     coder.encodeInteger(std::numeric_limits<uint64_t>::max(), visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
     coder.encodeBool(false, visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
@@ -26,15 +26,14 @@ int main(int, char **)
     coder.encodeNull(visibility_t::UNIVERSAL, PC_t::PRIMITIVE);
 
     printf("Encoding tags:\n");
-    cber_identifier i1 = coder.encodeIdentifier( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 10 );
-    cber_identifier i2 = coder.encodeIdentifier( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 31);
-    cber_identifier i3 = coder.encodeIdentifier( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 255);
-    cber_identifier i4 = coder.encodeIdentifier( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 1024);
+    cber_identifier i1 = coder.encodeTag( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 10 );
+    cber_identifier i2 = coder.encodeTag( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 31);
+    cber_identifier i3 = coder.encodeTag( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 255);
+    cber_identifier i4 = coder.encodeTag( visibility_t::UNIVERSAL, PC_t::PRIMITIVE, 1024);
     coder.print_identifier_bin(i1); printf("\n");
     coder.print_identifier_bin(i2); printf("\n");
     coder.print_identifier_bin(i3); printf("\n");
     coder.print_identifier_bin(i3); printf("\n");
-
 
     printf("Encoding lengths:\n");
     cber_length l1 = coder.encodeLength(std::numeric_limits<uint8_t>::max() );
