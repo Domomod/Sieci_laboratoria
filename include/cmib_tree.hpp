@@ -15,6 +15,13 @@ private:
 
 public:
     CMIBTree();
+    tree<CTrieNode>::iterator find_name(std::string name);
+    tree<CTrieNode>::iterator find_oid(int oid_n);
+    int insert_by_name(const std::string &name, const CTrieNode &node);
 
-    int insert_add(const std::vector<int> &oid, const CTrieNode &node);
+    tree<CTrieNode>::iterator find_oid2(const std::vector<int> &oid);
+    int insert_by_oid(const std::vector<int> &oid, const CTrieNode &node);
+
+
+    int insert_add(CTrieNode node);
 };

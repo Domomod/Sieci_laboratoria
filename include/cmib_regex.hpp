@@ -14,6 +14,8 @@
 #define LAZY "?"
 #define PARANTHESES(str) "\\(" str "\\)"
 #define BRACES(str) "\\{" str "\\}"
+#define BRACES1(str) "\\{" str " "
+#define BRACES2(str) str"\\}"
 #define BRACKETS(str) "\\[" str "\\]"
 #define CHEVRONS(str) "\\<" str "\\>"
 #define COMMENT "(?:--.*\\n\\s*)?"
@@ -55,7 +57,7 @@ OPTIONAL(PARANTHESES( CATCH_DOT_GREEDY ));
                                     "STATUS" CATCH_ANYTHING_LAZY
                                     "DESCRIPTION" CATCH_ANYTHING_LAZY
                            OPTIONAL("INDEX" CATCH_ANYTHING_LAZY) "::=" SKIP_WHITESPACES
-                                            BRACES(CATCH_DOT_LAZY);
+                                             BRACES(CATCH_DOT_LAZY);
 
     constexpr char type_declaration_regexp_str[] =
         CATCH_WORD SKIP_WHITESPACES "::=" SKIP_WHITESPACES

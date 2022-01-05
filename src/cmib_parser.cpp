@@ -1,10 +1,12 @@
 #include "cmib_parser.hpp"
 #include "cmib_regex.hpp"
+#include "tuple"
+#include <regex>
 
 namespace CmibParser{
 using namespace CmibRegex;
 
-std::shared_ptr<CMIBobject> parse_obj(
+std::tuple<std::shared_ptr<CMIBobject>,std::string,int> parse_obj(
         const std::string& str
     )
 {    
@@ -16,40 +18,52 @@ std::shared_ptr<CMIBobject> parse_obj(
 
     std::cout << str << "\n";
     std::cout << "IDENTI:\t" << match[1] << "\n";
-    std::cout << "SYNTAX:\t" << match[2] <<"\n";
+    std::cout << "SYNTAX:\t" << match[2] << "\n";
     std::cout << "ACCESS:\t" << match[3] << "\n";
     std::cout << "STATUS:\t" << match[4] << "\n";
     std::cout << "DESCRI:\t" << match[5] << "\n";
     std::cout << "INDEX :\t" << match[6] << "\n";
     std::cout << "OID   :\t" << match[7] << "\n";
+    std::regex rgx("\\s+");
+    std::string OIDNAME_TO_SPLIT = match[7].str();
+    std::sregex_token_iterator iter(OIDNAME_TO_SPLIT.begin(),OIDNAME_TO_SPLIT.end(),rgx,-1);
+    std::sregex_token_iterator end;
+    ++iter;
+    std::string name_to_return = *iter;
+    ++iter;
+    std::string oid_to_return = *iter;
+    //for ( ; iter != end; ++iter)
+     //   std::cout << *iter << '\n';
+    std::cout <<name_to_return << "\n";
+    std::cout << oid_to_return<< "\n";
     std::cout << "==============================================\n\n\n";
-
-    std::string syntax_bloated = match[2].str(); 
+    int oid_to_return_int = std::stoi(oid_to_return);
+    std::string syntax_bloated = match[2].str();
 
     std::smatch type_match;
     static const std::regex simple_syntax_regexp(object_simple_syntax_regexp_str);
     std::regex_search(syntax_bloated, type_match, simple_syntax_regexp);
     if(type_match[0].matched and type_match[0].str().find("SEQUENCE") == std::string::npos)
     {
-        return std::make_shared<CMIBobject>(
+        return  {std::make_shared<CMIBobject>(
             match[1],
             match[5],
             (access_t) match[3].str(),
             (status_t) match[4].str(),
             type_match[1]
-        );
+        ),name_to_return,oid_to_return_int};
     }
     else
     {
         std::shared_ptr<CMIBType> type = parse_syntax(syntax_bloated);
 
-        return std::make_shared<CMIBobject>(
+        return {std::make_shared<CMIBobject>(
             match[1],
             match[5],
             (access_t) match[3].str(),
             (status_t) match[4].str(),
             type
-        );
+        ),name_to_return,oid_to_return_int};
     }
 }
 

@@ -5,7 +5,8 @@
 #include <algorithm>
 #include <set>
 #include "cmib_object.hpp"
-
+#include "map"
+#include "cmib_tree.hpp"
 #pragma once
 
 class CmibFileSequencer
@@ -14,6 +15,9 @@ class CmibFileSequencer
         std::set<std::string> already_parsed_guard;
         std::map<std::string, std::shared_ptr<CMIBType>> types_map;
         std::vector<std::shared_ptr<CMIBobject>> parsed_objects;
+        std::map<std::string,std::vector<int>> oid_map;
+        CMIBTree cmibTree;
+
     public:
         int initialize(const std::string& path);
         int parse_file(const std::string& path);

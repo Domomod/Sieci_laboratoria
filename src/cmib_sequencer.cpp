@@ -56,6 +56,8 @@ int CmibFileSequencer::parse_file(const std::string& path)
     std::string definitions = file_body.substr(pos);
     // std::cout << "FILE\n" << definitions;
     parse_dependencies(definitions);
+
+    //cmibTree.find_name("HCI");
     return 0;
 }
 
@@ -66,7 +68,7 @@ int CmibFileSequencer::process_imports(const std::string& imports_definiton)
                     std::sregex_iterator(),
                     [&] (const auto& match) {
                         std::string import_name = match[1];
-                        std::string import_path = "data/" + import_name + ".mib";
+                        std::string import_path = "../data/" + import_name + ".mib";
                         parse_file(import_path);
                     });
     return 0;
@@ -129,7 +131,16 @@ int CmibFileSequencer::parse_dependencies(const std::string& str)
                             std::cout << "Parsing object\n";
 
                             std::string str = match.str();
-                            std::shared_ptr<CMIBobject> x = CmibParser::parse_obj(str);
+                           // std::shared_ptr<CMIBobject> x = CmibParser::parse_obj(str);
+                            auto [x,parent_name,oid]  = CmibParser::parse_obj(str);
+                            cmibTree.insert_add(CTrieNode(x->name(), oid,parent_name));
+                            std::vector new_oid = oid_map[parent_name];
+                          //  new_oid.pushback(oid);
+                            oid_map.emplace(x->name(), new_oid);
+                            //objectTree.insert(new_oid,x);
+
+                            std::cout << parent_name;
+                            printf("\n XDDDDDD %d\n",oid);
                             parsed_objects.push_back(x);
                         }
                         else
